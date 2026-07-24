@@ -94,6 +94,95 @@ h1 {
   color: #4a5568;
 }
 
+/* ===== How-to-play strip ===== */
+.how-to-play {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 14px;
+  margin: 0 0 20px;
+  padding: 10px 16px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0, 51, 102, 0.06);
+  font-size: 13px;
+}
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ivory);
+  padding: 6px 14px 6px 8px;
+  border-radius: 999px;
+  font-weight: 700;
+  color: var(--navy);
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.hint-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+}
+
+.how-to-text {
+  color: #4a5568;
+  font-size: 13px;
+}
+
+/* ===== Difficulty selector (segmented control) ===== */
+.difficulty-row {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  width: fit-content;
+  margin: 0 auto 24px;
+  padding: 5px;
+  background: white;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(0, 51, 102, 0.08);
+}
+
+.difficulty-label {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--sky);
+  margin: 0 0 8px;
+}
+
+.diff-btn {
+  border: none;
+  background: transparent;
+  padding: 9px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.diff-btn:hover:not(.active) {
+  background: var(--ivory);
+}
+
+.diff-btn.active {
+  background: var(--yellow);
+  box-shadow: 0 4px 10px rgba(255, 201, 7, 0.4);
+}
+
+.diff-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 /* ===== Stats ===== */
 .stats {
   display: flex;

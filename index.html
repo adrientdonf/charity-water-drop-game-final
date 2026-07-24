@@ -16,22 +16,24 @@
   <div class="container">
     <img class="logo" src="img/cw_logo_horizontal.png" alt="charity: water logo" />
 
-    <h1>Water Quest</h1>
-    <p class="game-instructions">Tap the clean water cans to collect points — avoid the dirty ones! Collect 20 to win.</p>
+ <div class="how-to-play">
+  <span class="hint">
+    <img src="img/clean-removebg-preview.png" alt="Clean can" class="hint-icon">
+    +1 point
+  </span>
+  <span class="hint">
+    <img src="img/dirty-removebg-preview.png" alt="Dirty can" class="hint-icon">
+    −1 point
+  </span>
+  <span class="how-to-text">Pick a difficulty, hit Start, and tap clean cans before time runs out!</span>
+</div>
+<p class="difficulty-label">Choose your difficulty</p>
 
-    <div class="stats">
-      <div class="stat-card">
-        <span class="stat-label">Cans Collected</span>
-        <span class="stat-value" id="current-cans">0</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Time Left</span>
-        <span class="stat-value"><span id="timer">30</span>s</span>
-        <div class="timer-track">
-          <div class="timer-fill" id="timer-fill"></div>
-        </div>
-      </div>
-    </div>
+<div class="difficulty-row" id="difficulty-row">
+  <button class="diff-btn" data-difficulty="easy">Easy</button>
+  <button class="diff-btn active" data-difficulty="normal">Normal</button>
+  <button class="diff-btn" data-difficulty="hard">Hard</button>
+</div>
 
     <div id="achievements" class="achievement"></div>
 
