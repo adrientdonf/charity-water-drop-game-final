@@ -1,11 +1,19 @@
 // Game configuration and state variables
-const GOAL_CANS = 20;
+// Game configuration and state variables
+const DIFFICULTY_SETTINGS = {
+  easy:   { goal: 15, time: 40, spawnSpeed: 1300, dirtyChance: 0.15 },
+  normal: { goal: 20, time: 30, spawnSpeed: 1000, dirtyChance: 0.25 },
+  hard:   { goal: 25, time: 25, spawnSpeed: 700,  dirtyChance: 0.35 }
+};
+let currentDifficulty = 'normal';
+
+let GOAL_CANS = DIFFICULTY_SETTINGS[currentDifficulty].goal;
 let currentCans = 0;
 let gameActive = false;
 let spawnInterval;
 let timerInterval;
-let timeLeft = 30;
-const TOTAL_TIME = 30;
+let TOTAL_TIME = DIFFICULTY_SETTINGS[currentDifficulty].time;
+let timeLeft = TOTAL_TIME;
 
 const winMessages = [
   "You did it! Clean water for all! 💧",
@@ -37,7 +45,7 @@ function spawnWaterCan() {
   cells.forEach(cell => (cell.innerHTML = ''));
 
   const randomCell = cells[Math.floor(Math.random() * cells.length)];
-  const isDirty = Math.random() < 0.25;
+  const isDirty = Math.random() < DIFFICULTY_SETTINGS[currentDifficulty].dirtyChance;
 
   randomCell.innerHTML = `
     <div class="water-can-wrapper">
@@ -92,16 +100,22 @@ function tickTimer() {
 
 function startGame() {
   if (gameActive) return;
+  const settings = DIFFICULTY_SETTINGS[currentDifficulty];
+  GOAL_CANS = settings.goal;
+  TOTAL_TIME = settings.time;
+
   gameActive = true;
   currentCans = 0;
   timeLeft = TOTAL_TIME;
   document.getElementById('current-cans').textContent = currentCans;
+  document.getElementById('goal-cans').textContent = GOAL_CANS;
   document.getElementById('timer').textContent = timeLeft;
   document.getElementById('timer-fill').style.width = '100%';
   document.getElementById('achievements').textContent = '';
 
+  setDifficultyLocked(true);
   createGrid();
-  spawnInterval = setInterval(spawnWaterCan, 1000);
+  spawnInterval = setInterval(spawnWaterCan, settings.spawnSpeed);
   timerInterval = setInterval(tickTimer, 1000);
 }
 
@@ -116,7 +130,9 @@ function endGame() {
   const chosenMessage = messages[Math.floor(Math.random() * messages.length)];
   document.getElementById('achievements').textContent = chosenMessage;
 
-  if (won) launchConfetti();
+if (won) launchConfetti();
+
+  setDifficultyLocked(false);
 }
 
 function resetGame() {
@@ -124,11 +140,14 @@ function resetGame() {
   clearInterval(spawnInterval);
   clearInterval(timerInterval);
   currentCans = 0;
+  TOTAL_TIME = DIFFICULTY_SETTINGS[currentDifficulty].time;
   timeLeft = TOTAL_TIME;
   document.getElementById('current-cans').textContent = currentCans;
+  document.getElementById('goal-cans').textContent = DIFFICULTY_SETTINGS[currentDifficulty].goal;
   document.getElementById('timer').textContent = timeLeft;
   document.getElementById('timer-fill').style.width = '100%';
   document.getElementById('achievements').textContent = '';
+  setDifficultyLocked(false);
   createGrid();
 }
 
@@ -162,5 +181,21 @@ function addRipple(e) {
 
 document.querySelectorAll('.btn').forEach(btn => btn.addEventListener('click', addRipple));
 
+function setDifficultyLocked(locked) {
+  document.querySelectorAll('.diff-btn').forEach(btn => (btn.disabled = locked));
+}
+
+document.querySelectorAll('.diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (gameActive) return;
+    currentDifficulty = btn.dataset.difficulty;
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const settings = DIFFICULTY_SETTINGS[currentDifficulty];
+    document.getElementById('goal-cans').textContent = settings.goal;
+    document.getElementById('timer').textContent = settings.time;
+  });
+});
 document.getElementById('start-game').addEventListener('click', startGame);
 document.getElementById('reset-game').addEventListener('click', resetGame);
