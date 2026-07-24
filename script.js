@@ -1,11 +1,35 @@
 // Game configuration and state variables
 // Game configuration and state variables
 const DIFFICULTY_SETTINGS = {
-  easy:   { goal: 15, time: 40, spawnSpeed: 1300, dirtyChance: 0.15 },
-  normal: { goal: 20, time: 30, spawnSpeed: 1000, dirtyChance: 0.25 },
-  hard:   { goal: 25, time: 25, spawnSpeed: 700,  dirtyChance: 0.35 }
+  easy:   { goal: 8,  time: 40, spawnSpeed: 1100, dirtyChance: 0.12 },
+  normal: { goal: 12, time: 35, spawnSpeed: 900,  dirtyChance: 0.20 },
+  hard:   { goal: 18, time: 30, spawnSpeed: 650,  dirtyChance: 0.30 }
 };
 let currentDifficulty = 'normal';
+// ---- Sound effects (generated tones, no audio files needed) ----
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playTone(frequency, duration, type = 'sine', volume = 0.15) {
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  oscillator.type = type;
+  oscillator.frequency.value = frequency;
+  gainNode.gain.value = volume;
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  oscillator.start();
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+  oscillator.stop(audioCtx.currentTime + duration);
+}
+
+function playCleanSound() { playTone(880, 0.15, 'sine'); }
+function playDirtySound() { playTone(160, 0.25, 'sawtooth'); }
+function playWinSound() {
+  [523, 659, 784, 1047].forEach((freq, i) => {
+    setTimeout(() => playTone(freq, 0.2, 'triangle'), i * 120);
+  });
+}
+function playLoseSound() { playTone(220, 0.4, 'square', 0.1); }
 
 let GOAL_CANS = DIFFICULTY_SETTINGS[currentDifficulty].goal;
 let currentCans = 0;
@@ -26,6 +50,28 @@ const loseMessages = [
   "Almost there! Try again to hit the goal.",
   "Keep going! Every can counts."
 ];
+
+const MILESTONES = [
+  { fraction: 0.25, message: "🚰 Nice start — 25% there!" },
+  { fraction: 0.5,  message: "💧 Halfway to clean water!" },
+  { fraction: 0.75, message: "🔥 Almost there — 75%!" },
+  { fraction: 1,    message: "🏆 Goal reached — keep going!" }
+];
+let milestonesShown = [];
+
+function checkMilestones() {
+  const progress = currentCans / GOAL_CANS;
+  MILESTONES.forEach((milestone, i) => {
+    if (progress >= milestone.fraction && !milestonesShown.includes(i)) {
+      milestonesShown.push(i);
+      const achievementBox = document.getElementById('achievements');
+      achievementBox.textContent = milestone.message;
+      setTimeout(() => {
+        if (gameActive) achievementBox.textContent = '';
+      }, 1500);
+    }
+  });
+}
 
 function createGrid() {
   const grid = document.querySelector('.game-grid');
@@ -72,10 +118,13 @@ function collectCan(isDirty, cell) {
     currentCans = Math.max(0, currentCans - 1);
     cell.classList.add('shake');
     showFloatFeedback(cell, '-1', false);
+    playDirtySound();
     setTimeout(() => cell.classList.remove('shake'), 350);
   } else {
     currentCans++;
     showFloatFeedback(cell, '+1', true);
+    playCleanSound();
+    checkMilestones();
   }
 
   document.getElementById('current-cans').textContent = currentCans;
@@ -106,6 +155,7 @@ function startGame() {
 
   gameActive = true;
   currentCans = 0;
+  milestonesShown = [];
   timeLeft = TOTAL_TIME;
   document.getElementById('current-cans').textContent = currentCans;
   document.getElementById('goal-cans').textContent = GOAL_CANS;
@@ -130,7 +180,12 @@ function endGame() {
   const chosenMessage = messages[Math.floor(Math.random() * messages.length)];
   document.getElementById('achievements').textContent = chosenMessage;
 
-if (won) launchConfetti();
+  if (won) {
+    launchConfetti();
+    playWinSound();
+  } else {
+    playLoseSound();
+  }
 
   setDifficultyLocked(false);
 }
@@ -192,7 +247,7 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
     document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    const settings = DIFFICULTY_SETTINGS[currentDifficulty];
+   const settings = DIFFICULTY_SETTINGS[currentDifficulty];
     document.getElementById('goal-cans').textContent = settings.goal;
     document.getElementById('timer').textContent = settings.time;
   });
