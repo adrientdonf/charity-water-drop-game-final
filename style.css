@@ -443,3 +443,41 @@ h1 {
   .btn { width: 100%; text-align: center; }
   .logo { height: 32px; }
 }
+/* ===== Footer ===== */
+.site-footer {
+  position: relative;
+  z-index: 1;
+  max-width: 750px;
+  margin: 24px auto 10px;
+  text-align: center;
+  font-size: 13px;
+  color: #4a5568;
+  padding: 20px 16px 0;
+}
+
+.site-footer p {
+  margin: 0 0 10px;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+
+.footer-links a {
+  color: var(--navy);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: var(--sky);
+  text-decoration: underline;
+}
+
+.footer-dot {
+  color: var(--gray);
+}
